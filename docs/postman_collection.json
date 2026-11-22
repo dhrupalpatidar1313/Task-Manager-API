@@ -1,0 +1,361 @@
+{
+  "info": {
+    "name": "Task Manager API",
+    "_postman_id": "c1f1088d-71b3-462a-a957-6dbd0879e951",
+    "description": "Postman Collection for the Natural-language Task Manager API with strict validation, idempotency, and subtask hierarchy support.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Tasks CRUD",
+      "item": [
+        {
+          "name": "List Tasks (Paginated)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tasks/?page=1&page_size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tasks", ""],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "page_size", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Task",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Idempotency-Key", "value": "demo-create-task-001" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Submit quarterly report\",\n  \"description\": \"Compile metrics and share with team lead\",\n  \"completed\": false,\n  \"due_date\": \"2026-12-15\",\n  \"priority\": \"high\",\n  \"recurrence\": \"monthly\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tasks/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tasks", ""]
+            }
+          }
+        },
+        {
+          "name": "Retrieve Task by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tasks/{{taskId}}/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tasks", "{{taskId}}", ""]
+            }
+          }
+        },
+        {
+          "name": "Update Task (PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Submit updated quarterly report\",\n  \"description\": \"Includes Q4 audit metrics\",\n  \"completed\": true,\n  \"due_date\": \"2026-12-20\",\n  \"priority\": \"medium\",\n  \"recurrence\": \"monthly\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tasks/{{taskId}}/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tasks", "{{taskId}}", ""]
+            }
+          }
+        },
+        {
+          "name": "Update Task Partially (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"priority\": \"low\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tasks/{{taskId}}/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tasks", "{{taskId}}", ""]
+            }
+          }
+        },
+        {
+          "name": "Delete Task (Cascade Subtasks)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tasks/{{taskId}}/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tasks", "{{taskId}}", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Natural Language (from-text)",
+      "item": [
+        {
+          "name": "From Text - Tomorrow",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Idempotency-Key", "value": "nl-tomorrow-001" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"Remind me to call John tomorrow\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tasks/from-text/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tasks", "from-text", ""]
+            }
+          }
+        },
+        {
+          "name": "From Text - Recurrence and Ordinal",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Idempotency-Key", "value": "nl-recurrence-002" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"Remind me to pay rent on the 1st of every month\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tasks/from-text/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tasks", "from-text", ""]
+            }
+          }
+        },
+        {
+          "name": "From Text - Invalid Date Error (502)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"File taxes on 2026-02-30\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tasks/from-text/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tasks", "from-text", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Subtasks and Breakdown",
+      "item": [
+        {
+          "name": "Create Subtask",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Gather receipts\",\n  \"description\": \"Scan all paper receipts for Q4\",\n  \"priority\": \"medium\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tasks/{{taskId}}/subtasks/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tasks", "{{taskId}}", "subtasks", ""]
+            }
+          }
+        },
+        {
+          "name": "List Subtasks",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tasks/{{taskId}}/subtasks/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tasks", "{{taskId}}", "subtasks", ""]
+            }
+          }
+        },
+        {
+          "name": "Breakdown Task into Subtasks",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Idempotency-Key", "value": "breakdown-task-001" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/tasks/{{taskId}}/breakdown/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tasks", "{{taskId}}", "breakdown", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Idempotency",
+      "item": [
+        {
+          "name": "Replay with Same Key and Body",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Idempotency-Key", "value": "idempotent-test-unique-key" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Idempotent Task\",\n  \"description\": \"Testing replayed header\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tasks/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tasks", ""]
+            }
+          }
+        },
+        {
+          "name": "Key Reused with Different Body (422)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Idempotency-Key", "value": "idempotent-test-unique-key" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Different Body\",\n  \"description\": \"Will conflict with original key payload\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tasks/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tasks", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Filtering, Search and Ordering",
+      "item": [
+        {
+          "name": "Combined Query",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tasks/?completed=false&priority=high&due_before=2026-12-31&search=rent&ordering=due_date&page=1&page_size=5",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tasks", ""],
+              "query": [
+                { "key": "completed", "value": "false" },
+                { "key": "priority", "value": "high" },
+                { "key": "due_before", "value": "2026-12-31" },
+                { "key": "search", "value": "rent" },
+                { "key": "ordering", "value": "due_date" },
+                { "key": "page", "value": "1" },
+                { "key": "page_size", "value": "5" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Out of Range Page (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tasks/?page=9999",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tasks", ""],
+              "query": [{ "key": "page", "value": "9999" }]
+            }
+          }
+        },
+        {
+          "name": "Invalid Filter Param (400)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tasks/?completed=maybe",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tasks", ""],
+              "query": [{ "key": "completed", "value": "maybe" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Validation Errors",
+      "item": [
+        {
+          "name": "Missing Required Fields",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{}" },
+            "url": {
+              "raw": "{{baseUrl}}/api/tasks/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tasks", ""]
+            }
+          }
+        },
+        {
+          "name": "Invalid Boolean Type",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Task\",\n  \"description\": \"Desc\",\n  \"completed\": \"yes\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tasks/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tasks", ""]
+            }
+          }
+        },
+        {
+          "name": "Invalid Calendar Date (Feb 30)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Task\",\n  \"description\": \"Desc\",\n  \"due_date\": \"2026-02-30\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tasks/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tasks", ""]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8000" },
+    { "key": "taskId", "value": "1" }
+  ]
+}
